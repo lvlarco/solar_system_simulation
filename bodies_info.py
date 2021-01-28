@@ -1,4 +1,4 @@
-celestial_bodies = {'Sun': ['@sun', '@sun'],
+celestial_bodies = {'Sun': ['10', '500@0'],
                     'Mercury': ['199', '500@199'],
                     'Venus': ['299', '500@299'],
                     'Earth': ['399', '500@399'],

@@ -11,12 +11,17 @@ from astroquery.jplhorizons import Horizons
 
 
 class CelestialBody:
-    def __init__(self, name, coords, size, color, scale=1):
+    def __init__(self, name, position, velocity, size, color, scale=1):
         self.name = name
-        self.coords = coords
+        self.pos = position
+        self.vel = velocity
         self.scale = scale
-        self.plot = ax.scatter(self.scale * self.coords[0], self.scale * self.coords[1], self.scale * self.coords[2],
-                               s=50*(size**2), color=color, zorder=10)
+        self.plot = ax.scatter(self.scale * self.pos[0], self.scale * self.pos[1], self.scale * self.pos[2],
+                               s=100 * size, color=color)  # , zorder=10)
+        self.line, = ax.plot(self.scale * self.pos[0], self.scale * self.pos[1], self.scale * self.pos[2], color=color,
+                             linestyle="-", linewidth=2)
+        # self.line, = ax.plot([],[],[], color=color,
+        #                      linestyle="-", linewidth=4, zorder=10)
 
 
 class CoordSystem:
@@ -30,15 +35,18 @@ class CoordSystem:
         self.orbit_bodies.append(body)
 
     def update_plot(self, i):  # evolve the trajectories
-        dt = 1.0
-        self.time += dt
         plots = []
-        # lines = []
+        lines = []
         for ob in self.orbit_bodies:
-            ob.plot._offsets3d = (ob.scale * pd.Series(ob.coords[0][i]), ob.scale * pd.Series(ob.coords[1][i]),
-                                  ob.scale * pd.Series(ob.coords[2][i]))
+            ob.plot._offsets3d = (ob.scale * pd.Series(ob.pos[0][i]), ob.scale * pd.Series(ob.pos[1][i]),
+                                  ob.scale * pd.Series(ob.pos[2][i]))
             plots.append(ob.plot)
-        return plots
+            # ob.line.set_data(ob.scale * pd.Series(ob.vel[0][i]), ob.scale * pd.Series(ob.vel[1][i]))
+            # ob.line.set_3d_properties(ob.scale * pd.Series(ob.vel[2][i]))
+            ob.line.set_data(np.array([pd.Series(ob.pos[0][:i]), pd.Series(ob.pos[1][:i])]))
+            ob.line.set_3d_properties(ob.scale * pd.Series(ob.pos[2][:i]))
+            lines.append(ob.line)
+        return plots + lines
         #     plots.append(ob.plot)
         #     lines.append(ob.line)
         # # self.timestamp.set_text('Date: {}'.format(Time(self.time, format='jd', out_subfmt='date').iso))
@@ -48,50 +56,57 @@ class CoordSystem:
 day_step = 1
 days_no = 365
 t = datetime.now()
-timestamps = [datetime.strftime(datetime.now(), '%Y-%m-%d')]
+
+timestamp_dict = {'start': datetime.strftime(t, '%Y-%m-%d'),
+                  'stop': datetime.strftime(t + timedelta(days=days_no), '%Y-%m-%d'),
+                  'step': '1d'}
+
+timestamps = [datetime.strftime(t, '%Y-%m-%d')]
 for i in range(days_no):
     t += timedelta(day_step)
     t_str = datetime.strftime(t, '%Y-%m-%d')
     timestamps.append(t_str)
-
-timestamp_dict = {'start': datetime.strftime(datetime.now(), '%Y-%m-%d'),
-                  'stop': datetime.strftime(datetime.now() + timedelta(days=days_no), '%Y-%m-%d'),
-                  'step': '1d'}
 
 plt.style.use('dark_background')
 fig = plt.figure()
 # ax = plt.axes()  # ([0., 0., 1., 1.], xlim=(-4, 4), ylim=(-4, 4))
 # ax = fig.add_subplot(111, projection='3d')
 ax = plt.axes(projection='3d')
+# ax = Axes3D(fig)
 
 # ax.set_aspect('equal')
-# ax.axis('off')
+ax.axis('off')
 
 scale = 1
 
 center = 'Sun'
 center_iau = celestial_bodies[center][1]
-sizes = [0.376, 0.949, 1, 0.27, 0.533, 5.1]
-colors = ['orange', 'limegreen', 'royalblue', 'whitesmoke', 'indianred', 'coral']
-cs = CoordSystem(CelestialBody(center, [0, 0, 0], 10, 'yellow', scale=scale))
+sizes = [5, 0.27, 0.376, 0.949, 1, 0.533, 3]
+orbit_list = ['Sun', 'Moon', 'Mercury', 'Venus', 'Earth', 'Mars', 'Jupiter']
+# orbit_list = ['Sun']  # 'Earth', 'Moon', 'Mercury']
+# sizes = [1]  # ,1, 0.27, 0.5]
+colors = ['yellow', 'whitesmoke', 'orange', 'limegreen', 'royalblue', 'indianred', 'coral']
+# c_coords = Horizons(id=celestial_bodies['Sun'][0], location=center_iau, epochs=timestamp_dict, id_type='id').vectors()
+# cs = CoordSystem(CelestialBody(center, [0, 0, 0], 1, 'yellow', scale=scale))
+cs = CoordSystem(center='Solar System')
+
 cs.time = Time(timestamps).jd
-orbit_list = ['Mercury', 'Venus', 'Earth', 'Moon', 'Mars', 'Jupiter']
-# orbit_list = ['Moon', 'Earth']
-# sizes = [0.25,1.]
+coord_array = np.empty((0, days_no + 1), float)
 for cb, s, c in zip(orbit_list, sizes, colors):
     orbit_body = cb
     orbit_iau = celestial_bodies[orbit_body][0]
-
-    coordinates = [Horizons(id=orbit_iau, location=center_iau, epochs=timestamp_dict, id_type='id').vectors()[c]
-                   for c in
-                   ['x', 'y', 'z']]
-    cs.add_body(CelestialBody(orbit_body, coordinates, s, c))
+    coords = [Horizons(id=orbit_iau, location=center_iau, epochs=timestamp_dict, id_type='id').vectors()[c]
+              for c in
+              ['x', 'y', 'z', 'vx', 'vy', 'vz']]
+    pos_coord = coords[:3]
+    vel_coord = coords[3:]
+    cs.add_body(CelestialBody(orbit_body, pos_coord, vel_coord, s, c))
 
 
 def animate(i):
     return cs.update_plot(i)
 
 
-# animate(points)
-ani = animation.FuncAnimation(fig, animate, repeat=True, frames=days_no, blit=False, interval=10, )
+# cs.update_plot(30)
+ani = animation.FuncAnimation(fig, animate, repeat=True, frames=days_no, blit=False, interval=5)
 plt.show()
