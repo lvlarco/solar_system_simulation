@@ -1,0 +1,21 @@
+body, html {
+	background-color: white;
+	font-family: "Trebuchet MS", Helvetica, sans-serif;
+	margin: 0;
+	font-size: 14pt;
+	height: 100%;
+}
+.home_container {
+	background-position: left top;
+	background-image: url('./assets/uyuni.jpg');
+	background-size: cover;
+	background-repeat: no-repeat;
+}
+.parallax {
+    background-image: url('./assets/uyuni.jpg');
+    height: 100%;
+    background-attachment: fixed;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+}

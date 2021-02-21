@@ -36,6 +36,7 @@ class CoordSystem:
 
     def update_plot(self, i):  # evolve the trajectories
         plots = []
+        
         lines = []
         for ob in self.orbit_bodies:
             ob.plot._offsets3d = (ob.scale * pd.Series(ob.pos[0][i]), ob.scale * pd.Series(ob.pos[1][i]),
@@ -108,5 +109,11 @@ def animate(i):
 
 
 # cs.update_plot(30)
-ani = animation.FuncAnimation(fig, animate, repeat=True, frames=days_no, blit=False, interval=5)
-plt.show()
+ani = animation.FuncAnimation(fig, animate, repeat=True, frames=days_no, blit=False, interval=100)
+# http://matplotlib.sourceforge.net/api/animation_api.html
+s = ani.to_jshtml()
+with open('ss_simulation.html', "w") as f:
+    f.write(s)
+# ani.save('ss_simulation.html')#, fps=30, extra_args=['-vcodec', 'libx264'])
+# ani.to_jshtml()
+# plt.show()
