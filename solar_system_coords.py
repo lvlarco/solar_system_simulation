@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
+import mpld3
 import matplotlib.animation as animation
 from bodies_info import celestial_bodies
 from mpl_toolkits import mplot3d
@@ -36,7 +37,7 @@ class CoordSystem:
 
     def update_plot(self, i):  # evolve the trajectories
         plots = []
-        
+
         lines = []
         for ob in self.orbit_bodies:
             ob.plot._offsets3d = (ob.scale * pd.Series(ob.pos[0][i]), ob.scale * pd.Series(ob.pos[1][i]),
@@ -69,7 +70,7 @@ for i in range(days_no):
     timestamps.append(t_str)
 
 plt.style.use('dark_background')
-fig = plt.figure()
+fig = plt.figure(figsize=(15, 8.5))
 # ax = plt.axes()  # ([0., 0., 1., 1.], xlim=(-4, 4), ylim=(-4, 4))
 # ax = fig.add_subplot(111, projection='3d')
 ax = plt.axes(projection='3d')
@@ -77,12 +78,12 @@ ax = plt.axes(projection='3d')
 
 # ax.set_aspect('equal')
 ax.axis('off')
-
+ax.view_init(85, 180)
 scale = 1
 
 center = 'Sun'
 center_iau = celestial_bodies[center][1]
-sizes = [5, 0.27, 0.376, 0.949, 1, 0.533, 3]
+sizes = [3, 0.27, 0.376, 0.949, 1, 0.533, 1.75]
 orbit_list = ['Sun', 'Moon', 'Mercury', 'Venus', 'Earth', 'Mars', 'Jupiter']
 # orbit_list = ['Sun']  # 'Earth', 'Moon', 'Mercury']
 # sizes = [1]  # ,1, 0.27, 0.5]
@@ -108,12 +109,16 @@ def animate(i):
     return cs.update_plot(i)
 
 
-# cs.update_plot(30)
-ani = animation.FuncAnimation(fig, animate, repeat=True, frames=days_no, blit=False, interval=100)
-# http://matplotlib.sourceforge.net/api/animation_api.html
+ani = animation.FuncAnimation(fig, animate, repeat=True, frames=days_no, blit=False, interval=75)
 s = ani.to_jshtml()
+# # s = ani.to_html5_video()
 with open('ss_simulation.html', "w") as f:
     f.write(s)
+
+# html_str = mpld3.fig_to_html(ani)
+# Html_file = open("ss_simulation_mpld3.html", "w")
+# Html_file.write(html_str)
+# Html_file.close()
+
 # ani.save('ss_simulation.html')#, fps=30, extra_args=['-vcodec', 'libx264'])
-# ani.to_jshtml()
 # plt.show()
