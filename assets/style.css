@@ -1,0 +1,26 @@
+/* Remove annoying border when dropdown has been used. */
+.is-focused:not(.is-open)>.Select-control{
+	border:none;
+	box-shadow: none;
+}
+
+/* Date Range colours */
+/* Calendar date start and end */
+.CalendarDay__selected, .CalendarDay__selected:active, .CalendarDay__selected:hover {
+  background: rgb(102, 153, 255);
+  border: 1px;
+  color: #fff;
+}
+
+/* Calendar in between start and end date */
+.CalendarDay__selected_span {
+    background: rgb(55, 90, 127);
+    border: 1px white;
+    color: #fff;
+}
+
+.CalendarDay__selected_span:active, .CalendarDay__selected_span:hover {
+    background: goldenrod;
+    border: 1px double goldenrod;
+    color: #fff;
+}
