@@ -124,11 +124,8 @@ def run_simulation(initial_date, end_date, planets_type='terrestrial', axes=True
                     for k, f in enumerate(frames)],
             }
         ],
-        # Shows axes
-
         # scene=dict(aspectratio=dict(x=1, y=1, z=1))
         # dict(xaxis_visible=False, yaxis_visible=False, zaxis_visible=False)
-        #            )
     )
     fig = go.Figure(data=traces,
                     frames=frames,
