@@ -1,124 +1,89 @@
-import numpy as np
-import matplotlib.pyplot as plt
-import pandas as pd
-import mpld3
-import matplotlib.animation as animation
-from bodies_info import celestial_bodies
-from mpl_toolkits import mplot3d
-from mpl_toolkits.mplot3d import Axes3D
-from datetime import datetime, timedelta
-from astropy.time import Time
-from astroquery.jplhorizons import Horizons
+import plotly.graph_objects as go
 
 
 class CelestialBody:
-    def __init__(self, name, position, velocity, size, color, scale=1):
+    """Initializes the body object of interest. Creates two separate plots for all the timestamps
+    in position and velocity (self.plot and self.line). Position and velocity two parameters must
+    be the same length.
+    :param name: str
+    :param position: pandas df
+    :param epochs: pandas df
+    :param size: int
+    :param color: str
+    :param scale: int
+    """
+
+    def __init__(self, name, position, epochs, size, color, scale=1):
         self.name = name
-        self.pos = position
-        self.vel = velocity
+        try:
+            self.pos_x = position['x']
+            self.pos_y = position['y']
+            self.pos_z = position['z']
+            self.date = epochs
+        except KeyError:
+            print('Empty return from this epoch for {}'.format(name))
         self.scale = scale
-        self.plot = ax.scatter(self.scale * self.pos[0], self.scale * self.pos[1], self.scale * self.pos[2],
-                               s=100 * size, color=color)  # , zorder=10)
-        self.line, = ax.plot(self.scale * self.pos[0], self.scale * self.pos[1], self.scale * self.pos[2], color=color,
-                             linestyle="-", linewidth=2)
-        # self.line, = ax.plot([],[],[], color=color,
-        #                      linestyle="-", linewidth=4, zorder=10)
+        if name == 'Sun':
+            ini_size = 7
+        else:
+            ini_size = 1
+        self.size = size
+        self.lsize = 3.5
+        self.color = color
+        self.scatter = go.Scatter3d(x=scale * self.pos_x,
+                                    y=scale * self.pos_y,
+                                    z=scale * self.pos_z,
+                                    mode='markers',
+                                    marker=dict(size=ini_size,
+                                                color=self.color),
+                                    name=name,
+                                    hovertemplate=name)
+        self.line = go.Scatter3d(x=scale * self.pos_x,
+                                 y=scale * self.pos_y,
+                                 z=scale * self.pos_z,
+                                 mode='lines',
+                                 line=dict(width=self.lsize,
+                                           color=self.color),
+                                 name="{}'s orbit".format(name),
+                                 # hovertemplate=name
+                                 )
 
 
 class CoordSystem:
-    def __init__(self, center):
+    """Creates a map of all bodies passed onto self.orbit_bodies. Map uses 3-axes cartesian
+    coordinates.
+    """
+
+    def __init__(self, center=None):
         self.center = center
         self.orbit_bodies = []
-        self.time = None
-        # self.timestamp = ax.text(.03, .94, 'Date: ', color='w', transform=ax.transAxes, fontsize='x-large')
 
     def add_body(self, body):
+        """Updates list of celestial bodies to animate"""
         self.orbit_bodies.append(body)
 
-    def update_plot(self, i):  # evolve the trajectories
-        plots = []
-
-        lines = []
-        for ob in self.orbit_bodies:
-            ob.plot._offsets3d = (ob.scale * pd.Series(ob.pos[0][i]), ob.scale * pd.Series(ob.pos[1][i]),
-                                  ob.scale * pd.Series(ob.pos[2][i]))
-            plots.append(ob.plot)
-            # ob.line.set_data(ob.scale * pd.Series(ob.vel[0][i]), ob.scale * pd.Series(ob.vel[1][i]))
-            # ob.line.set_3d_properties(ob.scale * pd.Series(ob.vel[2][i]))
-            ob.line.set_data(np.array([pd.Series(ob.pos[0][:i]), pd.Series(ob.pos[1][:i])]))
-            ob.line.set_3d_properties(ob.scale * pd.Series(ob.pos[2][:i]))
-            lines.append(ob.line)
-        return plots + lines
-        #     plots.append(ob.plot)
-        #     lines.append(ob.line)
-        # # self.timestamp.set_text('Date: {}'.format(Time(self.time, format='jd', out_subfmt='date').iso))
-        # return plots + lines  # + [self.timestamp]
-
-
-day_step = 1
-days_no = 365
-t = datetime.now()
-
-timestamp_dict = {'start': datetime.strftime(t, '%Y-%m-%d'),
-                  'stop': datetime.strftime(t + timedelta(days=days_no), '%Y-%m-%d'),
-                  'step': '1d'}
-
-timestamps = [datetime.strftime(t, '%Y-%m-%d')]
-for i in range(days_no):
-    t += timedelta(day_step)
-    t_str = datetime.strftime(t, '%Y-%m-%d')
-    timestamps.append(t_str)
-
-plt.style.use('dark_background')
-fig = plt.figure(figsize=(15, 8.5))
-# ax = plt.axes()  # ([0., 0., 1., 1.], xlim=(-4, 4), ylim=(-4, 4))
-# ax = fig.add_subplot(111, projection='3d')
-ax = plt.axes(projection='3d')
-# ax = Axes3D(fig)
-
-# ax.set_aspect('equal')
-ax.axis('off')
-ax.view_init(85, 180)
-scale = 1
-
-center = 'Sun'
-center_iau = celestial_bodies[center][1]
-sizes = [3, 0.27, 0.376, 0.949, 1, 0.533, 1.75]
-orbit_list = ['Sun', 'Moon', 'Mercury', 'Venus', 'Earth', 'Mars', 'Jupiter']
-# orbit_list = ['Sun']  # 'Earth', 'Moon', 'Mercury']
-# sizes = [1]  # ,1, 0.27, 0.5]
-colors = ['yellow', 'whitesmoke', 'orange', 'limegreen', 'royalblue', 'indianred', 'coral']
-# c_coords = Horizons(id=celestial_bodies['Sun'][0], location=center_iau, epochs=timestamp_dict, id_type='id').vectors()
-# cs = CoordSystem(CelestialBody(center, [0, 0, 0], 1, 'yellow', scale=scale))
-cs = CoordSystem(center='Solar System')
-
-cs.time = Time(timestamps).jd
-coord_array = np.empty((0, days_no + 1), float)
-for cb, s, c in zip(orbit_list, sizes, colors):
-    orbit_body = cb
-    orbit_iau = celestial_bodies[orbit_body][0]
-    coords = [Horizons(id=orbit_iau, location=center_iau, epochs=timestamp_dict, id_type='id').vectors()[c]
-              for c in
-              ['x', 'y', 'z', 'vx', 'vy', 'vz']]
-    pos_coord = coords[:3]
-    vel_coord = coords[3:]
-    cs.add_body(CelestialBody(orbit_body, pos_coord, vel_coord, s, c))
-
-
-def animate(i):
-    return cs.update_plot(i)
-
-
-ani = animation.FuncAnimation(fig, animate, repeat=True, frames=days_no, blit=False, interval=75)
-s = ani.to_jshtml()
-# # s = ani.to_html5_video()
-with open('ss_simulation.html', "w") as f:
-    f.write(s)
-
-# html_str = mpld3.fig_to_html(ani)
-# Html_file = open("ss_simulation_mpld3.html", "w")
-# Html_file.write(html_str)
-# Html_file.close()
-
-# ani.save('ss_simulation.html')#, fps=30, extra_args=['-vcodec', 'libx264'])
-# plt.show()
+    def update_frames(self, days):
+        """Creates a list of scatter and line plots for each celestial body in self.orbit_bodies. Iterates
+        by the number of days passed, and returns a list of go.Frame to be animated
+        :param days: int
+        """
+        frames = []
+        for i in range(days + 1):
+            frame_plots = []
+            for ob in self.orbit_bodies:
+                sct_plot = go.Scatter3d(
+                    x=[ob.scale * ob.pos_x[i]],
+                    y=[ob.scale * ob.pos_y[i]],
+                    z=[ob.scale * ob.pos_z[i]],
+                    mode='markers',
+                    marker=dict(size=ob.size))
+                line_plot = go.Scatter3d(
+                    x=ob.scale * ob.pos_x[:i],
+                    y=ob.scale * ob.pos_y[:i],
+                    z=ob.scale * ob.pos_z[:i],
+                    mode='lines',
+                    line=dict(width=ob.lsize))
+                frame_plots = frame_plots + [sct_plot, line_plot]
+                date = ob.date[i]
+            frames = frames + [go.Frame(data=frame_plots, name=str(date))]
+        return frames
