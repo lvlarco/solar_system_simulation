@@ -151,9 +151,7 @@ def update_simulation(_, axes, radio_value, start_date, end_date):
     else:
         planets = 'terrestrial'
     if isinstance(start_date, str) and isinstance(end_date, str):
-        start_date = start_date[:18]
         start_date = datetime.strptime(start_date, '%Y-%m-%d')
-        end_date = end_date[:18]
         end_date = datetime.strptime(end_date, '%Y-%m-%d')
     return sim.run_simulation(start_date, end_date, planets, axes)
 

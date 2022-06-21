@@ -1,7 +1,7 @@
 import pandas as pd
 import plotly.graph_objects as go
 from solar_system_coords import CelestialBody, CoordSystem
-from bodies_info import celestial_bodies, planets_plot_settings
+from resources.bodies_info import celestial_bodies, planets_plot_settings
 from astroquery.jplhorizons import Horizons
 from datetime import datetime, timedelta
 
