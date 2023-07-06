@@ -73,8 +73,9 @@ def run_simulation(initial_date, end_date, planets_type='terrestrial', axes=True
         font=dict(color='#8B9397'),
         plot_bgcolor='yellow',
         paper_bgcolor='#222',
-        width=1250,
-        height=900,
+        autosize=True,
+        # width=1000,
+        # height=700,
         showlegend=True,
         # legend=dict(font=dict(color='white')),
         updatemenus=[

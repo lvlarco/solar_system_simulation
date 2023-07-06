@@ -5,15 +5,17 @@ class CelestialBody:
     """Initializes the body object of interest. Creates two separate plots for all the timestamps
     in position and velocity (self.plot and self.line). Position and velocity two parameters must
     be the same length.
-    :param name: str
-    :param position: pandas df
-    :param epochs: pandas df
-    :param size: int
-    :param color: str
-    :param scale: int
     """
 
     def __init__(self, name, position, epochs, size, color, scale=1):
+        """
+        :param name: str
+        :param position: pandas df
+        :param epochs: pandas df
+        :param size: int
+        :param color: str
+        :param scale: int
+        """
         self.name = name
         try:
             self.pos_x = position['x']
