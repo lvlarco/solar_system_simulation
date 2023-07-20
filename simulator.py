@@ -88,26 +88,29 @@ def run_simulation(initial_date, end_date, planets_type='terrestrial', axes=True
                 yanchor='top',
                 pad=dict(t=0, r=10),
                 direction='left',
-                buttons=[dict(label="&#9654;",
-                              method='animate',
-                              args=[None, frame_args(50)
-                                    # dict(frame=
-                                    # dict(duration=50,
-                                    #            # redraw=False
-                                    #            ),
-                                    # transition=dict(duration=5,
-                                    #                 # easing='quadratic-in-out'
-                                    #                 ),
-                                    # fromcurrent=True,
-                                    # mode='immediate'
-                                    # )
-                                    ]
-                              ),
-                         dict(label="&#9724;",
-                              method='animate',
-                              args=[[None], frame_args(0)]
-                              ),
-                         ]
+                buttons=[
+                    dict(
+                        label="&#9654;",
+                        method='animate',
+                        args=[None, frame_args(planets_plot_settings.get(planets_type).get("frame_duration"))
+                              # dict(frame=
+                              # dict(duration=50,
+                              #            # redraw=False
+                              #            ),
+                              # transition=dict(duration=5,
+                              #                 # easing='quadratic-in-out'
+                              #                 ),
+                              # fromcurrent=True,
+                              # mode='immediate'
+                              # )
+                              ]
+                    ),
+                    dict(
+                        label="&#9724;",
+                        method='animate',
+                        args=[[None], frame_args(0)]
+                    ),
+                ]
             )
         ],
         sliders=[
@@ -122,7 +125,8 @@ def run_simulation(initial_date, end_date, planets_type='terrestrial', axes=True
                         "label": str(f.name),
                         "method": "animate",
                     }
-                    for k, f in enumerate(frames)],
+                    for k, f in enumerate(frames)
+                ],
             }
         ],
         # scene=dict(aspectratio=dict(x=1, y=1, z=1))

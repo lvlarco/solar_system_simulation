@@ -67,12 +67,20 @@ celestial_bodies = {
     }
 }
 
-planets_plot_settings = {'terrestrial': {'planets': ['Sun', 'Mercury', 'Venus', 'Earth', 'Mars'],
-                                         'axes_range': 2},
-                         'jovian': {'planets': ['Sun', 'Jupiter', 'Saturn', 'Uranus', 'Neptune'],
-                                    'axes_range': 15.25},
-                         'all': {'planets': ['Sun', 'Mercury', 'Venus', 'Earth', 'Mars', 'Jupiter', 'Saturn', 'Uranus',
-                                             'Neptune'],
-                                 'axes_range': 15.25
-                                 }
-                         }
+planets_plot_settings = {
+    'terrestrial': {
+        'planets': ['Sun', 'Mercury', 'Venus', 'Earth', 'Mars'],
+        'axes_range': 2,
+        "frame_duration": 50
+    },
+    'jovian': {
+        'planets': ['Sun', 'Jupiter', 'Saturn', 'Uranus', 'Neptune'],
+        'axes_range': 35,
+        "frame_duration": 10
+    },
+    'all': {
+        'planets': ['Sun', 'Mercury', 'Venus', 'Earth', 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune'],
+        'axes_range': 16.25,
+        "frame_duration": 20
+    }
+}
