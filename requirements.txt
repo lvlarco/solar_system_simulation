@@ -1,5 +1,5 @@
-astroquery==0.4.7.dev7761
-dash>=2.7.0
+astroquery[all] --pre
+dash==2.7.0
 dash_bootstrap_components==1.1.0
 dash-core-components==2.0.0
 dash-daq==0.5.0
